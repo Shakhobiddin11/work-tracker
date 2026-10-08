@@ -20,6 +20,7 @@ export function createStateStore(loaded = loadState()) {
     },
     setData(update) {
       const next = typeof update === 'function' ? update(snapshot.data) : update
+      if (next === snapshot.data) return true
       if (!isValidState(next)) return false
       // Clone caller-owned objects before freezing, so they cannot mutate stored state.
       const data = freeze(structuredClone(next))

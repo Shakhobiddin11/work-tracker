@@ -1,6 +1,6 @@
 # Work Tracker
 
-A local single-user MVP using React, JavaScript, Vite, npm, and plain CSS. No backend or login. Projects supports creation, editing, archiving, and restoring. Other features remain placeholders.
+A local single-user MVP using React, JavaScript, Vite, npm, and plain CSS. No backend or login. Projects supports creation, editing, archiving, and restoring. Work Timer records project sessions. Dashboard, Income, and Goals remain placeholders.
 
 ## Setup
 
@@ -27,11 +27,12 @@ Build output is in dist; preview serves that production build locally.
 - src/app/: composition, state navigation, Context, and provider.
 - src/components/layout/: responsive navigation shell.
 - src/components/ui/: shared presentation.
-- src/features/projects/: project page, form, decimal rate parsing, immutable operations, and focused checks. Other feature folders contain placeholders.
+- src/features/projects/: project page, form, decimal rate parsing, immutable operations, and focused checks.
+- src/features/timer/: timestamp-based timer, immutable start/stop operations, recent sessions, styles, and focused checks.
 - src/lib/: versioned persistence and validation.
 - src/styles/: theme variables and shared CSS.
 
-Navigation uses React state; reloading returns to Dashboard. Navigation buttons expose the active page. Visible keyboard focus, a skip link, and wrapping mobile navigation support accessibility.
+Navigation uses URL hashes (`#dashboard`, `#timer`, `#projects`, `#income`, `#goals`). Refresh and bookmarks reopen the current section, and browser Back/Forward changes sections. An empty or unknown hash safely shows Dashboard. Navigation buttons expose the active page. Visible keyboard focus, a skip link, and wrapping mobile navigation support accessibility. The skip link focuses content without changing the section hash or browser history.
 
 Context starts with settings: { currency: "USD" }, empty projects, sessions, incomeEntries, and goals arrays, and activeTimer: null. Consumers receive data, setData, and a storage notice.
 
@@ -39,13 +40,13 @@ Context starts with settings: { currency: "USD" }, empty projects, sessions, inc
 
 - Money uses integer cents.
 - IDs are stable strings; timestamps use ISO strings.
-- Timer elapsed time will be calculated from timestamps rather than interval ticks.
+- Timer elapsed time is calculated from timestamps rather than interval ticks.
 - Recorded payments drive financial goal progress.
 - The MVP is a local single-user application without backend or login.
 
 ## Storage
 
-The localStorage key is work-tracker:v1. Loading safely parses JSON and validates every required field below, currency format, and duplicate IDs within each collection. Empty initial arrays are valid. `activeTimer` must remain `null`; timer persistence validation must be implemented with the timer feature.
+The localStorage key is work-tracker:v1. Loading safely parses JSON and validates every required field below, currency format, and duplicate IDs within each collection. Empty initial arrays are valid. `activeTimer` accepts `null` (including existing saved data) or a validated timer record.
 
 ### Foundation record schemas
 
@@ -57,8 +58,9 @@ All records require a stable, nonempty string `id`. Required descriptive strings
 | sessions | `startedAt`, `endedAt`, `durationSeconds` (zero or greater), `notes`, optional `projectId` |
 | incomeEntries | `description`, `amountCents` (strictly positive recorded payment), `paidDate`, `createdAt`, optional `projectId` |
 | goals | `title`, `targetCents` (strictly positive), `status` (`active`, `completed`, or `archived`), optional `deadline`, `createdAt`, `updatedAt` |
+| activeTimer | `null` or an object with stable nonempty string `id`, required nonempty `projectId`, and canonical ISO `startedAt`. Its ID must not already exist in sessions. |
 
-Timestamps use canonical UTC ISO strings as returned by `Date.toISOString()` (`YYYY-MM-DDTHH:mm:ss.sssZ`). Date-only fields (`paidDate`, `deadline`) use real calendar dates in `YYYY-MM-DD` format. Invalid dates and rolled-over dates are rejected. `updatedAt` cannot precede `createdAt`, and session `endedAt` cannot precede `startedAt`. Duration is stored as nonnegative integer seconds; timestamp-based elapsed-time reconciliation belongs to the timer feature.
+Timestamps use canonical UTC ISO strings as returned by `Date.toISOString()` (`YYYY-MM-DDTHH:mm:ss.sssZ`). Date-only fields (`paidDate`, `deadline`) use real calendar dates in `YYYY-MM-DD` format. Invalid dates and rolled-over dates are rejected. `updatedAt` cannot precede `createdAt`, and session `endedAt` cannot precede `startedAt`. Duration is stored as nonnegative integer seconds, calculated by flooring the difference between stop and start timestamps. Existing sessions with optional project references remain valid; newly recorded timer sessions always have a project ID.
 
 Optional project IDs may be omitted, `null`, or nonempty strings; empty strings are invalid. Validation checks their shape, not whether a referenced project currently exists, so historical records can survive project removal. Optional deadlines may be omitted or `null`. Unknown extra fields do not replace required fields and are preserved for forward-compatible metadata.
 
@@ -76,7 +78,21 @@ Names are required and trimmed; optional client names are trimmed. Older project
 
 Archived projects are retained and can still be edited. Archiving never removes sessions, payments, or their references. All operations go through the existing provider; storage warnings stay visible and invalid saved data is never overwritten. Successful updates in memory do not imply persistence when storage is unavailable.
 
+## Work Timer
+
+Choose an active project to start one timer. The active timer is saved immediately through the provider. The display uses `floor((Date.now() - startedAt) / 1000)` and formats hours, minutes, and seconds; hours can exceed 24. A refresh or background delay does not reset elapsed time. Intervals only refresh the display, and focus/visibility events refresh it when returning to the tab. Navigating to another section leaves the timer running.
+
+For a valid elapsed time of at least one second, Stop records one WorkSession and clears the matching active timer in a single provider update and storage write. The timer ID becomes the session ID. Repeated Stop calls and stale handlers cannot duplicate sessions or stop a newer timer. No-op updates do not trigger storage writes. The optional note is trimmed and stored in the existing `notes` field as an empty string when omitted. Note drafts are local to the Timer page and are lost on navigation or reload until Stop saves them.
+
+Archived projects cannot start another timer, but an already-running timer can finish after its project is archived. Project IDs remain attached to sessions. If a project is unavailable, the timer and history show its ID rather than discarding the reference. Recent sessions show the ten latest starts, local dates/times, duration, and notes.
+
+Malformed saved timestamps follow the existing invalid-data path: saved content remains untouched, persistence is disabled, and the storage notice is displayed. Structurally valid future start timestamps remain loaded. Stop always clears a matching active timer immediately: if less than one second has elapsed, or timestamps are invalid or in the future, it saves no session. The cleared timer is persisted through the provider, and an accessible status message explains why no session was saved. At or after one full second, Stop records exactly one session. Repeated Stop performs no additional storage write and cannot create duplicates. Existing v1 zero-duration sessions remain valid and are preserved; new timer sessions require at least one second. Storage failures still leave in-memory changes available and display the existing warning.
+
+Limitations: use a single Work Tracker tab; separate tabs do not synchronize or merge state and can overwrite each other's changes. Timing uses the device wall clock, so clock corrections can affect elapsed time; there is no server clock, pause, or manual time correction. If storage fails, timers and sessions remain in memory, the warning stays visible, and reloading may lose unsaved changes or restore an older persisted timer. Browser storage is not a backup. There is no automatic stopping when the browser closes.
+
 ## Focused checks
 
 Run `node src/lib/storage.test.js` to check record validation, saved-data preservation, storage failures, and immutable consecutive provider-store updates.
 Run `node src/features/projects/projectModel.test.js` for rate boundaries, project lifecycle, reload persistence, and storage warning preservation.
+Run `node src/features/timer/timerModel.test.js` for elapsed time after refresh/background delays, start/stop persistence, duplicate Stop protection, archived projects, timestamp validation, and storage failures.
+Run `node src/app/navigation.test.js` for hash sections, initial/reload snapshots, history changes, unknown-hash fallback, and subscription cleanup.

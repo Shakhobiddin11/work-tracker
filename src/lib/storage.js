@@ -12,10 +12,14 @@ const date = (value) => {
   const parsed = new Date(`${value}T00:00:00.000Z`)
   return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value
 }
-const timestamp = (value) => {
+export const isTimestamp = (value) => {
   if (!text(value) || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)) return false
   const parsed = new Date(value)
   return Number.isFinite(parsed.getTime()) && parsed.toISOString() === value
+}
+const timestamp = isTimestamp
+export function isValidActiveTimer(value) {
+  return object(value) && nonempty(value.id) && nonempty(value.projectId) && timestamp(value.startedAt)
 }
 const audit = (item) => timestamp(item.createdAt) && timestamp(item.updatedAt) && item.updatedAt >= item.createdAt
 const validators = {
@@ -37,7 +41,8 @@ export function isValidState(value) {
     if (!Array.isArray(value[key]) || !value[key].every(item => object(item) && nonempty(item.id) && validators[key](item))) return false
     if (new Set(value[key].map(item => item.id)).size !== value[key].length) return false
   }
-  return value.activeTimer === null
+  return value.activeTimer === null || (isValidActiveTimer(value.activeTimer)
+    && !value.sessions.some(session => session.id === value.activeTimer.id))
 }
 export function loadState() {
   try {
