@@ -123,6 +123,7 @@ Every financial goal uses the existing Goals progress calculation, including inc
 
 ## Focused checks
 
+Run `node src/app/integration.test.js` for the connected project/timer/payment/goal/Dashboard flow, reloads, edits/removals, archived references, cancellation, and storage failure preservation.
 Run `node src/lib/storage.test.js` to check record validation, saved-data preservation, storage failures, and immutable consecutive provider-store updates.
 Run `node src/features/projects/projectModel.test.js` for rate boundaries, project lifecycle, reload persistence, and storage warning preservation.
 Run `node src/features/timer/timerModel.test.js` for elapsed time after refresh/background delays, start/stop persistence, duplicate Stop protection, archived projects, timestamp validation, and storage failures.
