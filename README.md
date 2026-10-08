@@ -1,6 +1,6 @@
 # Work Tracker
 
-A local single-user MVP using React, JavaScript, Vite, npm, and plain CSS. No backend or login. This step includes a responsive shell and placeholders only.
+A local single-user MVP using React, JavaScript, Vite, npm, and plain CSS. No backend or login. Projects supports creation, editing, archiving, and restoring. Other features remain placeholders.
 
 ## Setup
 
@@ -27,7 +27,7 @@ Build output is in dist; preview serves that production build locally.
 - src/app/: composition, state navigation, Context, and provider.
 - src/components/layout/: responsive navigation shell.
 - src/components/ui/: shared presentation.
-- src/features/dashboard/, timer/, projects/, income/, goals/: placeholder sections.
+- src/features/projects/: project page, form, decimal rate parsing, immutable operations, and focused checks. Other feature folders contain placeholders.
 - src/lib/: versioned persistence and validation.
 - src/styles/: theme variables and shared CSS.
 
@@ -53,7 +53,7 @@ All records require a stable, nonempty string `id`. Required descriptive strings
 
 | Collection | Fields |
 | --- | --- |
-| projects | `name`, `description`, `status` (`active` or `archived`), `hourlyRateCents` (zero or greater), `createdAt`, `updatedAt` |
+| projects | `name`, `description`, optional string `clientName`, `status` (`active` or `archived`), `hourlyRateCents` (zero or greater), `createdAt`, `updatedAt` |
 | sessions | `startedAt`, `endedAt`, `durationSeconds` (zero or greater), `notes`, optional `projectId` |
 | incomeEntries | `description`, `amountCents` (strictly positive recorded payment), `paidDate`, `createdAt`, optional `projectId` |
 | goals | `title`, `targetCents` (strictly positive), `status` (`active`, `completed`, or `archived`), optional `deadline`, `createdAt`, `updatedAt` |
@@ -68,8 +68,15 @@ Invalid saved data remains untouched, with persistence disabled for that session
 
 ## Git
 
-This folder has a separate repository on main. No commit, remote, push, or deployment is included. Dependencies, build output, logs, and .env files are ignored.
+This folder has a separate repository on main. Dependencies, build output, logs, credentials, and .env files are ignored. Feature changes should remain uncommitted until reviewed.
+
+## Projects
+
+Names are required and trimmed; optional client names are trimmed. Older projects without `clientName` remain valid. Hourly rates use nonnegative USD decimals with at most two decimal places (no exponents, separators, or signs). Blank rates default to zero cents. Decimal strings are converted directly to integer cents without floating-point rounding. IDs use `crypto.randomUUID()` and remain unchanged on edit, archive, or restore. Edits preserve descriptions and other metadata. ISO `updatedAt` timestamps are refreshed on changes, without moving backward if the clock changes.
+
+Archived projects are retained and can still be edited. Archiving never removes sessions, payments, or their references. All operations go through the existing provider; storage warnings stay visible and invalid saved data is never overwritten. Successful updates in memory do not imply persistence when storage is unavailable.
 
 ## Focused checks
 
 Run `node src/lib/storage.test.js` to check record validation, saved-data preservation, storage failures, and immutable consecutive provider-store updates.
+Run `node src/features/projects/projectModel.test.js` for rate boundaries, project lifecycle, reload persistence, and storage warning preservation.

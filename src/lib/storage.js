@@ -20,6 +20,7 @@ const timestamp = (value) => {
 const audit = (item) => timestamp(item.createdAt) && timestamp(item.updatedAt) && item.updatedAt >= item.createdAt
 const validators = {
   projects: (item) => nonempty(item.name) && text(item.description)
+    && (item.clientName === undefined || text(item.clientName))
     && ['active', 'archived'].includes(item.status) && integer(item.hourlyRateCents) && audit(item),
   sessions: (item) => optionalId(item.projectId) && text(item.notes)
     && timestamp(item.startedAt) && timestamp(item.endedAt) && item.endedAt >= item.startedAt
