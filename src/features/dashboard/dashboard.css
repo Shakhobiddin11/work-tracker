@@ -1,0 +1,27 @@
+.dashboard-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 24px; }
+.dashboard-card, .dashboard-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; min-width: 0; }
+.dashboard-card h2 { font-size: 15px; color: var(--muted); }
+.dashboard-card > strong { display: block; font-size: clamp(22px, 3vw, 30px); color: var(--accent); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; margin: 12px 0; }
+.dashboard-card p, .dashboard-help, .dashboard-list time { font-size: 13px; color: var(--muted); }
+.dashboard-panel { margin-bottom: 24px; }
+.dashboard-panel-header, .dashboard-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.dashboard-panel-header { margin-bottom: 12px; }
+.dashboard-panel-header h2 { margin: 0; }
+.dashboard-panel a, .dashboard-card a { color: var(--accent); text-underline-offset: 3px; }
+.dashboard-panel a:hover, .dashboard-card a:hover { text-decoration-thickness: 2px; }
+.dashboard-action { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--accent-soft); font-weight: 600; text-decoration: none; }
+.dashboard-quick-links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+.dashboard-timer.is-running { border-color: var(--accent); }
+.dashboard-project-name { font-weight: 650; overflow-wrap: anywhere; }
+.dashboard-clock { font-size: clamp(30px, 6vw, 52px); font-variant-numeric: tabular-nums; font-weight: 650; overflow-wrap: anywhere; }
+.dashboard-warning { background: #fff3d6; color: #614600; border-radius: 6px; padding: 12px; }
+.dashboard-activity { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.dashboard-list { list-style: none; padding: 0; margin: 0; }
+.dashboard-list li { padding: 16px 0; border-top: 1px solid var(--border); }
+.dashboard-list h3 { margin: 0; font-size: 17px; }
+.dashboard-list h3, .dashboard-row strong, .dashboard-list p { overflow-wrap: anywhere; }
+.dashboard-note { white-space: pre-wrap; margin: 8px 0; }
+.dashboard-empty { color: var(--muted); }
+.dashboard-list progress { width: 100%; height: 10px; accent-color: var(--accent); }
+@media (max-width: 1000px) { .dashboard-summary { grid-template-columns: 1fr; } }
+@media (max-width: 720px) { .dashboard-activity { grid-template-columns: 1fr; gap: 0; } .dashboard-card, .dashboard-panel { padding: 20px; } .dashboard-quick-links .dashboard-action { flex: 1 1 40%; } }

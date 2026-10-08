@@ -8,9 +8,10 @@ export function elapsedSeconds(startedAt, now = Date.now()) {
 }
 
 export function formatDuration(seconds) {
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  return [hours, minutes, seconds % 60].map(part => String(part).padStart(2, '0')).join(':')
+  const total = BigInt(seconds)
+  const hours = total / 3600n
+  const minutes = (total % 3600n) / 60n
+  return [hours, minutes, total % 60n].map(part => String(part).padStart(2, '0')).join(':')
 }
 
 export function startTimer(state, projectId, options = {}) {

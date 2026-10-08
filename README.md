@@ -1,6 +1,6 @@
 # Work Tracker
 
-A local single-user MVP using React, JavaScript, Vite, npm, and plain CSS. No backend or login. Projects manages work, Work Timer records sessions, Income tracks received payments, and Financial Goals tracks independent income targets. Dashboard remains a placeholder.
+A local single-user MVP using React, JavaScript, Vite, npm, and plain CSS. No backend or login. Projects manages work, Work Timer records sessions, Income tracks received payments, and Financial Goals tracks independent income targets. Dashboard provides an overview of existing Context data.
 
 ## Setup
 
@@ -31,6 +31,7 @@ Build output is in dist; preview serves that production build locally.
 - src/features/timer/: timestamp-based timer, immutable start/stop operations, recent sessions, styles, and focused checks.
 - src/features/income/: received payments, local-date form, explicit removal confirmation, exact totals, validation, styles, and focused checks.
 - src/features/goals/: independent income goals, date-range forms, derived progress, confirmation, styles, and focused checks.
+- src/features/dashboard/: read-only Context overview, shared calculations/formatters, responsive panels, and derivation checks.
 - src/lib/: versioned persistence and validation.
 - src/styles/: theme variables and shared CSS.
 
@@ -112,6 +113,14 @@ Dates are validated `YYYY-MM-DD` calendar strings and compared directly, avoidin
 
 Legacy v1 goals without `startDate` remain stored unchanged. They show their target and prompt the user to supply a complete range before progress is calculated; no historical start date is invented. Editing adds the new range. Invalid saved data is preserved and persistence disabled with the existing notice, following the provider flow. Goal drafts are not persisted. Goals and payments are USD only; there is no currency conversion.
 
+## Dashboard
+
+Dashboard derives all values from Context and does not write or persist separate summary data. Summary cards show the active project count, total duration of recorded sessions, and total received income using the Income model's exact payment total. A running timer is shown separately and is not added to recorded session totals until stopped and saved. Shared duration formatting accepts BigInt aggregates so many large valid sessions do not overflow or lose precision.
+
+The running timer reuses the Timer model's timestamp calculation and refreshes on intervals, focus, and visibility changes. Future/invalid starts show an explanation and a link to Timer. Recent work and payments show the latest five records; totals include every record. Archived project names remain visible, missing references show their ID, and unassigned payments show No project. Session dates use local start times and payment dates use the Income formatter's stable calendar-day display.
+
+Every financial goal uses the existing Goals progress calculation, including inclusive date boundaries, independent overlapping ranges, progress above 100%, and legacy goals without a date range. The overview labels received income clearly and never treats it as savings. Goal percentages and remaining amounts stay consistent with Goals. Dashboard links use section hashes, preserving refresh/bookmarks and Back/Forward behavior. Empty panels include links to the relevant section, and the existing storage notice stays visible. There are no seeded records or new dependencies.
+
 ## Focused checks
 
 Run `node src/lib/storage.test.js` to check record validation, saved-data preservation, storage failures, and immutable consecutive provider-store updates.
@@ -120,3 +129,4 @@ Run `node src/features/timer/timerModel.test.js` for elapsed time after refresh/
 Run `node src/app/navigation.test.js` for hash sections, initial/reload snapshots, history changes, unknown-hash fallback, and subscription cleanup.
 Run `node src/features/income/incomeModel.test.js` for amount limits, dates, project references, create/edit/remove, exact totals, legacy compatibility, persistence, and failure notices. Date checks can also run with different process `TZ` values, such as America/Los_Angeles, Europe/Warsaw, and Pacific/Kiritimati.
 Run `node src/features/goals/goalModel.test.js` for title/target/date validation, inclusive boundaries, overlapping targets, progress above 100%, deadline labels, editing/removal, legacy records, persistence, and invalid-data preservation.
+Run `node src/features/dashboard/dashboardModel.test.js` for empty data, exact totals, archived/missing project labels, running timer state, shared goal summaries, recent ordering, and immutable derivation.
