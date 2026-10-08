@@ -7,12 +7,14 @@ import Timer from '../features/timer/Timer.jsx'
 import Projects from '../features/projects/Projects.jsx'
 import Income from '../features/income/Income.jsx'
 import Goals from '../features/goals/Goals.jsx'
+import DataManagement from '../features/data/DataManagement.jsx'
 const sections = [
   { id: 'dashboard', label: 'Dashboard', component: Dashboard },
   { id: 'timer', label: 'Timer', component: Timer },
   { id: 'projects', label: 'Projects', component: Projects },
   { id: 'income', label: 'Income', component: Income },
   { id: 'goals', label: 'Goals', component: Goals },
+  { id: 'data', label: 'Data Management', component: DataManagement },
 ]
 export default function App() {
   const active = useSyncExternalStore(subscribeToNavigation, getCurrentSection)

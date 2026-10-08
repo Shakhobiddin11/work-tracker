@@ -35,11 +35,11 @@ for (const section of SECTION_IDS) {
 index--
 hash = history[index]
 listeners.forEach(listener => listener())
-assert.equal(observed, 'income')
+assert.equal(observed, SECTION_IDS.at(-2))
 index++
 hash = history[index]
 listeners.forEach(listener => listener())
-assert.equal(observed, 'goals')
+assert.equal(observed, SECTION_IDS.at(-1))
 navigateToSection('unknown')
 assert.equal(observed, 'dashboard')
 unsubscribe()

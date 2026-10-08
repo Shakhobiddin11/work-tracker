@@ -32,10 +32,11 @@ Build output is in dist; preview serves that production build locally.
 - src/features/income/: received payments, local-date form, explicit removal confirmation, exact totals, validation, styles, and focused checks.
 - src/features/goals/: independent income goals, date-range forms, derived progress, confirmation, styles, and focused checks.
 - src/features/dashboard/: read-only Context overview, shared calculations/formatters, responsive panels, and derivation checks.
+- src/features/data/: local backup export, validated import preview, explicit replacement/recovery, and focused checks.
 - src/lib/: versioned persistence and validation.
 - src/styles/: theme variables and shared CSS.
 
-Navigation uses URL hashes (`#dashboard`, `#timer`, `#projects`, `#income`, `#goals`). Refresh and bookmarks reopen the current section, and browser Back/Forward changes sections. An empty or unknown hash safely shows Dashboard. Navigation buttons expose the active page. Visible keyboard focus, a skip link, and wrapping mobile navigation support accessibility. The skip link focuses content without changing the section hash or browser history.
+Navigation uses URL hashes (`#dashboard`, `#timer`, `#projects`, `#income`, `#goals`, `#data`). Refresh and bookmarks reopen the current section, and browser Back/Forward changes sections. An empty or unknown hash safely shows Dashboard. Navigation buttons expose the active page. Visible keyboard focus, a skip link, and wrapping mobile navigation support accessibility. The skip link focuses content without changing the section hash or browser history.
 
 Context starts with settings: { currency: "USD" }, empty projects, sessions, incomeEntries, and goals arrays, and activeTimer: null. Consumers receive data, setData, and a storage notice.
 
@@ -123,6 +124,7 @@ Every financial goal uses the existing Goals progress calculation, including inc
 
 ## Focused checks
 
+Run `node src/features/data/backupModel.test.js` for backup round-trips, validation, preview, cancellation, storage-first replacement, timer choices, failures, and corrupted-data recovery.
 Run `node src/app/integration.test.js` for the connected project/timer/payment/goal/Dashboard flow, reloads, edits/removals, archived references, cancellation, and storage failure preservation.
 Run `node src/lib/storage.test.js` to check record validation, saved-data preservation, storage failures, and immutable consecutive provider-store updates.
 Run `node src/features/projects/projectModel.test.js` for rate boundaries, project lifecycle, reload persistence, and storage warning preservation.
@@ -131,3 +133,13 @@ Run `node src/app/navigation.test.js` for hash sections, initial/reload snapshot
 Run `node src/features/income/incomeModel.test.js` for amount limits, dates, project references, create/edit/remove, exact totals, legacy compatibility, persistence, and failure notices. Date checks can also run with different process `TZ` values, such as America/Los_Angeles, Europe/Warsaw, and Pacific/Kiritimati.
 Run `node src/features/goals/goalModel.test.js` for title/target/date validation, inclusive boundaries, overlapping targets, progress above 100%, deadline labels, editing/removal, legacy records, persistence, and invalid-data preservation.
 Run `node src/features/dashboard/dashboardModel.test.js` for empty data, exact totals, archived/missing project labels, running timer state, shared goal summaries, recent ordering, and immutable derivation.
+
+## Local backup and restore
+
+Open **Data Management** (`#data`) and choose **Download backup**. The JSON includes `format: work-tracker-backup`, `version: 1`, an ISO export timestamp, and the complete current state, including any running timer. Export captures in-memory changes even if saving failed. Keep backups securely; they contain your project and payment information. Export/import makes no network requests.
+
+To restore, choose a `.json` backup up to 5 MiB, review record counts, currency, and timer status, and confirm replacement of this browser's records. Restore replaces rather than merges. Stop the current timer first. If the backup contains a timer, explicitly preserve its original start time (elapsed time includes the intervening time) or discard it without creating a session. The new state is published only after localStorage accepts the complete replacement. Invalid files, Cancel, and read/write failures leave current data unchanged.
+
+For corrupted saved data, use **Download raw saved value** first to retain the exact original value. It may not be a valid backup. A separate recovery checkbox explicitly authorizes replacement of invalid saved data with a validated backup; startup and ordinary edits never overwrite it. Successful recovery clears the warning and re-enables saving. If storage cannot be read or written, restore is unavailable, but the current in-memory state can still be exported.
+
+Browser storage is specific to the browser and origin and may be cleared, blocked, or exceed quota. There is no automatic backup, cloud sync, encryption, merge, or undo. Use one tab during restore and reload other open tabs afterward; separate tabs do not synchronize. Draft forms are not part of backups. The 5 MiB file limit does not guarantee sufficient localStorage quota.

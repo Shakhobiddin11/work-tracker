@@ -67,3 +67,8 @@ export function saveState(data) {
     return true
   } catch { return false }
 }
+
+export function readSavedValue() {
+  try { return { ok: true, raw: window.localStorage.getItem(STORAGE_KEY) } }
+  catch { return { ok: false, raw: null } }
+}

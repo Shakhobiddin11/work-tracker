@@ -1,4 +1,4 @@
-export const SECTION_IDS = ['dashboard', 'timer', 'projects', 'income', 'goals']
+export const SECTION_IDS = ['dashboard', 'timer', 'projects', 'income', 'goals', 'data']
 
 export function sectionFromHash(hash) {
   const section = typeof hash === 'string' && hash.startsWith('#') ? hash.slice(1) : ''
