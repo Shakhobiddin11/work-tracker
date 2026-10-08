@@ -1,0 +1,38 @@
+@import './variables.css';
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Inter, 'Segoe UI', sans-serif; color: var(--text); background: var(--background); line-height: 1.6; }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+.app-shell { min-height: 100vh; display: grid; grid-template-columns: 248px minmax(0, 1fr); }
+.sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 32px 20px; display: flex; flex-direction: column; }
+.brand { display: flex; align-items: center; gap: 12px; font-size: 19px; font-weight: 700; padding: 0 8px; }
+.brand-mark { background: var(--accent); color: white; border-radius: 10px; width: 36px; height: 36px; display: grid; place-items: center; }
+nav { display: grid; gap: 8px; margin-top: 48px; }
+nav button { text-align: left; display: flex; align-items: center; gap: 14px; min-height: 48px; border: 0; border-radius: 10px; padding: 12px; color: var(--muted); background: transparent; }
+nav button:hover { background: var(--background); color: var(--text); }
+nav button[aria-current='page'] { background: var(--accent-soft); color: var(--accent); font-weight: 650; }
+.nav-number { font-size: 12px; }
+.sidebar-note { margin-top: auto; padding: 48px 12px 0; color: var(--muted); font-size: 13px; }
+.topbar { min-height: 80px; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: var(--surface); color: var(--muted); font-size: 14px; }
+main { max-width: 1100px; margin: 0 auto; padding: 48px 40px; }
+.eyebrow { color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; margin: 0 0 8px; }
+h1 { font-size: clamp(28px, 4vw, 38px); line-height: 1.2; margin: 0; letter-spacing: -.03em; }
+.description { color: var(--muted); margin: 12px 0 32px; }
+.empty-state { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 64px 24px; text-align: center; }
+.empty-mark { display: grid; place-items: center; margin: 0 auto 20px; width: 52px; height: 52px; background: var(--accent-soft); color: var(--accent); border-radius: 16px; font-size: 28px; }
+h2 { margin: 0 0 8px; font-size: 21px; }
+.empty-state p { max-width: 460px; margin: 0 auto 24px; color: var(--muted); }
+.badge { display: inline-block; background: var(--background); border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; font-size: 12px; color: var(--muted); }
+.storage-notice { background: #fff3d6; border: 1px solid #d4a741; color: #614600; border-radius: 10px; padding: 16px; margin: 0 0 24px; }
+.skip-link { position: fixed; top: -100px; left: 16px; z-index: 10; padding: 12px 18px; background: var(--surface); color: var(--accent); }
+.skip-link:focus { top: 16px; }
+@media (max-width: 720px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar { padding: 20px 16px 12px; border-right: 0; border-bottom: 1px solid var(--border); }
+  nav { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 20px; gap: 6px; }
+  nav button { justify-content: center; padding: 10px 6px; font-size: 14px; }
+  .nav-number, .sidebar-note { display: none; }
+  .topbar { min-height: 60px; padding: 12px 20px; }
+  main { padding: 32px 20px; }
+  .empty-state { padding: 40px 20px; }
+}
