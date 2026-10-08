@@ -1,6 +1,6 @@
 # Work Tracker
 
-A local single-user MVP using React, JavaScript, Vite, npm, and plain CSS. No backend or login. Projects manages work, Work Timer records sessions, and Income tracks payments actually received. Dashboard and Goals remain placeholders.
+A local single-user MVP using React, JavaScript, Vite, npm, and plain CSS. No backend or login. Projects manages work, Work Timer records sessions, Income tracks received payments, and Financial Goals tracks independent income targets. Dashboard remains a placeholder.
 
 ## Setup
 
@@ -30,6 +30,7 @@ Build output is in dist; preview serves that production build locally.
 - src/features/projects/: project page, form, decimal rate parsing, immutable operations, and focused checks.
 - src/features/timer/: timestamp-based timer, immutable start/stop operations, recent sessions, styles, and focused checks.
 - src/features/income/: received payments, local-date form, explicit removal confirmation, exact totals, validation, styles, and focused checks.
+- src/features/goals/: independent income goals, date-range forms, derived progress, confirmation, styles, and focused checks.
 - src/lib/: versioned persistence and validation.
 - src/styles/: theme variables and shared CSS.
 
@@ -58,7 +59,7 @@ All records require a stable, nonempty string `id`. Required descriptive strings
 | projects | `name`, `description`, optional string `clientName`, `status` (`active` or `archived`), `hourlyRateCents` (zero or greater), `createdAt`, `updatedAt` |
 | sessions | `startedAt`, `endedAt`, `durationSeconds` (zero or greater), `notes`, optional `projectId` |
 | incomeEntries | New entries: `amountCents` (strictly positive safe integer), `receivedAt` (ISO timestamp), `receivedDate` (selected calendar date), `notes` (may be empty), `createdAt`, `updatedAt`, optional `projectId`. Legacy entries without `receivedAt`: `description` (nonempty), `paidDate`, `amountCents`, `createdAt`, optional `projectId`. |
-| goals | `title`, `targetCents` (strictly positive), `status` (`active`, `completed`, or `archived`), optional `deadline`, `createdAt`, `updatedAt` |
+| goals | `title`, `targetCents` (strictly positive safe integer), `status` (`active`, `completed`, or `archived`), `createdAt`, `updatedAt`. New goals require `startDate` and `deadline` calendar dates with deadline on or after start. Legacy goals without `startDate` may omit `deadline` or use `null`. |
 | activeTimer | `null` or an object with stable nonempty string `id`, required nonempty `projectId`, and canonical ISO `startedAt`. Its ID must not already exist in sessions. |
 
 Timestamps use canonical UTC ISO strings as returned by `Date.toISOString()` (`YYYY-MM-DDTHH:mm:ss.sssZ`). Date-only fields (`paidDate`, `deadline`) use real calendar dates in `YYYY-MM-DD` format. Invalid dates and rolled-over dates are rejected. `updatedAt` cannot precede `createdAt`, and session `endedAt` cannot precede `startedAt`. Duration is stored as nonnegative integer seconds, calculated by flooring the difference between stop and start timestamps. Existing sessions with optional project references remain valid; newly recorded timer sessions always have a project ID.
@@ -101,6 +102,16 @@ Payments may reference active or archived projects, or have no project. Archived
 
 Existing v1 `paidDate`/`description` entries remain valid and are displayed without a startup migration. Editing an old entry adds the new fields while retaining metadata; `receivedDate` and `notes` then drive its display. All changes use the existing provider and persistence flow. Invalid saved data remains untouched, and unavailable storage displays the existing warning. Draft forms are not persisted and are lost on navigation or reload.
 
+## Financial Goals
+
+Each goal is an independent target for **income received**, not money saved or estimated session earnings. Creation requires a trimmed nonblank title, positive USD target with up to two decimal places, start date, and deadline on or after the start date. No personal goal is seeded or prefilled. Targets are safe integer cents. Progress is derived live from recorded payments whose calendar dates fall within the inclusive start/deadline range. It includes active/archived project payments and payments with no project, using both new `receivedDate` and legacy `paidDate` records. Editing or removing payments recalculates goal progress automatically.
+
+Overlapping goals can count the same payment; payments are not allocated or split between goals. The UI explains this. BigInt arithmetic keeps received amounts, remaining amounts, and percentages exact; percentages show two decimal places rounded down, may exceed 100%, and remaining never goes below zero. The progress bar caps at 100% while the percentage label shows the full value. Zero progress displays 0.00% and the full target remaining. Target reached is derived from payments rather than the stored legacy status.
+
+Dates are validated `YYYY-MM-DD` calendar strings and compared directly, avoiding UTC/local timestamp shifts. Deadline labels compare against today's local date and show upcoming, today, or past; they refresh on focus, visibility changes, and once a minute. Missing legacy deadlines display No deadline. Editing preserves IDs, creation timestamps, status, and metadata. Cancel discards drafts, and removal requires explicit confirmation and never removes payments.
+
+Legacy v1 goals without `startDate` remain stored unchanged. They show their target and prompt the user to supply a complete range before progress is calculated; no historical start date is invented. Editing adds the new range. Invalid saved data is preserved and persistence disabled with the existing notice, following the provider flow. Goal drafts are not persisted. Goals and payments are USD only; there is no currency conversion.
+
 ## Focused checks
 
 Run `node src/lib/storage.test.js` to check record validation, saved-data preservation, storage failures, and immutable consecutive provider-store updates.
@@ -108,3 +119,4 @@ Run `node src/features/projects/projectModel.test.js` for rate boundaries, proje
 Run `node src/features/timer/timerModel.test.js` for elapsed time after refresh/background delays, start/stop persistence, duplicate Stop protection, archived projects, timestamp validation, and storage failures.
 Run `node src/app/navigation.test.js` for hash sections, initial/reload snapshots, history changes, unknown-hash fallback, and subscription cleanup.
 Run `node src/features/income/incomeModel.test.js` for amount limits, dates, project references, create/edit/remove, exact totals, legacy compatibility, persistence, and failure notices. Date checks can also run with different process `TZ` values, such as America/Los_Angeles, Europe/Warsaw, and Pacific/Kiritimati.
+Run `node src/features/goals/goalModel.test.js` for title/target/date validation, inclusive boundaries, overlapping targets, progress above 100%, deadline labels, editing/removal, legacy records, persistence, and invalid-data preservation.

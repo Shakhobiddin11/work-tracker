@@ -36,7 +36,9 @@ const validators = {
       : timestamp(item.receivedAt) && date(item.receivedDate) && text(item.notes) && audit(item)),
   goals: (item) => nonempty(item.title) && integer(item.targetCents, 1)
     && ['active', 'completed', 'archived'].includes(item.status)
-    && (item.deadline === undefined || item.deadline === null || date(item.deadline)) && audit(item),
+    && (item.startDate === undefined
+      ? (item.deadline === undefined || item.deadline === null || date(item.deadline))
+      : date(item.startDate) && date(item.deadline) && item.deadline >= item.startDate) && audit(item),
 }
 export function isValidState(value) {
   if (!object(value) || !object(value.settings) || typeof value.settings.currency !== 'string' || !/^[A-Z]{3}$/.test(value.settings.currency)) return false
