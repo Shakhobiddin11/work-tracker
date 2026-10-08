@@ -7,11 +7,12 @@ const text = (value) => typeof value === 'string'
 const nonempty = (value) => text(value) && value.trim().length > 0
 const integer = (value, minimum = 0) => Number.isSafeInteger(value) && value >= minimum
 const optionalId = (value) => value === undefined || value === null || nonempty(value)
-const date = (value) => {
+export const isDate = (value) => {
   if (!text(value) || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
   const parsed = new Date(`${value}T00:00:00.000Z`)
   return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value
 }
+const date = isDate
 export const isTimestamp = (value) => {
   if (!text(value) || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)) return false
   const parsed = new Date(value)
@@ -29,8 +30,10 @@ const validators = {
   sessions: (item) => optionalId(item.projectId) && text(item.notes)
     && timestamp(item.startedAt) && timestamp(item.endedAt) && item.endedAt >= item.startedAt
     && integer(item.durationSeconds),
-  incomeEntries: (item) => optionalId(item.projectId) && nonempty(item.description)
-    && integer(item.amountCents, 1) && date(item.paidDate) && timestamp(item.createdAt),
+  incomeEntries: (item) => optionalId(item.projectId) && integer(item.amountCents, 1)
+    && (item.receivedAt === undefined
+      ? nonempty(item.description) && date(item.paidDate) && timestamp(item.createdAt)
+      : timestamp(item.receivedAt) && date(item.receivedDate) && text(item.notes) && audit(item)),
   goals: (item) => nonempty(item.title) && integer(item.targetCents, 1)
     && ['active', 'completed', 'archived'].includes(item.status)
     && (item.deadline === undefined || item.deadline === null || date(item.deadline)) && audit(item),

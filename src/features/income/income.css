@@ -1,0 +1,26 @@
+.income-header, .income-card-header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+.income-button { min-height: 44px; padding: 10px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); font-weight: 600; }
+.income-button:hover { background: var(--accent-soft); }
+.income-button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+.income-button.danger { background: #ad2525; color: white; border-color: #ad2525; }
+.income-button:disabled { opacity: .55; cursor: default; }
+.income-total, .income-form, .income-confirm, .income-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+.income-total strong { display: block; font-size: clamp(24px, 4vw, 34px); color: var(--accent); overflow-wrap: anywhere; }
+.income-total p, .income-help { font-size: 13px; color: var(--muted); }
+.income-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin: 20px 0; }
+.income-fields label { display: block; font-weight: 600; margin-bottom: 6px; }
+.income-fields input, .income-fields select, .income-fields textarea { width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px; font: inherit; border: 1px solid #9ba9bd; border-radius: 6px; color: var(--text); background: var(--surface); }
+.income-fields textarea { resize: vertical; }
+.income-fields [aria-invalid='true'] { border: 2px solid #ad2525; }
+.income-error { color: #ad2525; font-size: 14px; margin: 8px 0; }
+.income-error:empty, .income-feedback:empty { display: none; }
+.income-feedback { color: var(--accent); }
+.income-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.income-list { list-style: none; margin: 16px 0; padding: 0; }
+.income-card strong { font-size: 20px; overflow-wrap: anywhere; }
+.income-card time, .income-project { color: var(--muted); }
+.income-project, .income-note { overflow-wrap: anywhere; }
+.income-note { white-space: pre-wrap; }
+.income-empty { border: 1px dashed #9ba9bd; border-radius: 12px; padding: 24px; color: var(--muted); }
+.income-confirm { border-color: #ad2525; }
+@media (max-width: 720px) { .income-fields { grid-template-columns: 1fr; } .income-header { margin-bottom: 24px; } .income-total, .income-form, .income-card, .income-confirm { padding: 20px; } }
