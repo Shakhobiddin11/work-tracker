@@ -4,23 +4,36 @@ A local single-user MVP using React, JavaScript, Vite, npm, and plain CSS. No ba
 
 ## Setup
 
-Run from this dedicated directory:
+Requires Git and Node.js 24, with its bundled npm. The project has been checked with Node.js 24.14.0 and npm 11.9.0.
 
-```cmd
+Clone the repository and install the versions recorded in the lockfile:
+
+```sh
+git clone https://github.com/Shakhobiddin11/work-tracker.git
 cd work-tracker
-npm install
+npm ci
 npm run dev
 ```
 
-The existing dev server is at http://localhost:5173/. Use it without starting another server.
+While the repository is private, cloning requires a GitHub account with access. No environment variables, API keys, backend services, or database setup are required.
 
-```cmd
-npm run build
+Open the local URL printed by Vite, normally http://localhost:5173/. Vite may select another port if that port is already in use. Stop the server with Ctrl+C.
+
+Run the lint, test, and production build checks:
+
+```sh
 npm run lint
+node --test
+npm run build
+```
+
+To serve the production build locally:
+
+```sh
 npm run preview
 ```
 
-Build output is in dist; preview serves that production build locally.
+Build output is in `dist`; preview serves that production build at the URL printed in the terminal. Application data stays in this browser's localStorage. A fresh browser or origin starts with empty records; no projects, sessions, payments, or goals are seeded.
 
 ## Architecture
 
@@ -74,7 +87,7 @@ Invalid saved data remains untouched, with persistence disabled for that session
 
 ## Git
 
-This folder has a separate repository on main. Dependencies, build output, logs, credentials, and .env files are ignored. Feature changes should remain uncommitted until reviewed.
+Dependencies, build output, generated caches, local relocation artifacts, credentials, and .env files are ignored. Root-level Work Tracker backup exports and raw recovery files are also ignored because they can contain personal project and payment information. Keep exported data outside the repository, and review changes before committing.
 
 ## Projects
 
@@ -123,6 +136,8 @@ The running timer reuses the Timer model's timestamp calculation and refreshes o
 Every financial goal uses the existing Goals progress calculation, including inclusive date boundaries, independent overlapping ranges, progress above 100%, and legacy goals without a date range. The overview labels received income clearly and never treats it as savings. Goal percentages and remaining amounts stay consistent with Goals. Dashboard links use section hashes, preserving refresh/bookmarks and Back/Forward behavior. Empty panels include links to the relevant section, and the existing storage notice stays visible. There are no seeded records or new dependencies.
 
 ## Focused checks
+
+Run all existing checks with `node --test`. Individual check files can also be run directly:
 
 Run `node src/features/data/backupModel.test.js` for backup round-trips, validation, preview, cancellation, storage-first replacement, timer choices, failures, and corrupted-data recovery.
 Run `node src/app/integration.test.js` for the connected project/timer/payment/goal/Dashboard flow, reloads, edits/removals, archived references, cancellation, and storage failure preservation.

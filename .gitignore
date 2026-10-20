@@ -12,6 +12,20 @@ dist
 dist-ssr
 *.local
 
+# Local relocation artifacts (including verification logs and builds)
+/.relocation.local/
+
+# Generated tool caches
+.cache/
+.vite/
+node-compile-cache/
+.eslintcache
+*.tsbuildinfo
+
+# Personal Work Tracker exports and recovery files saved at the project root
+/work-tracker-backup*.json
+/work-tracker-raw-saved-data*.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
